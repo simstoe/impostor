@@ -1,0 +1,81 @@
+<section class="flex flex-col items-center justify-center min-h-screen px-4 text-center bg-[#1e1e20] relative">
+  <div class="absolute inset-0 overflow-hidden z-0">
+    <div
+      class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-white opacity-5 rounded-full blur-3xl">
+    </div>
+    <div
+      class="absolute bottom-[-100px] right-[-100px] w-[400px] h-[400px] bg-white opacity-5 rounded-full blur-3xl">
+    </div>
+  </div>
+
+  <div class="relative z-10 w-full max-w-md">
+    @if (!gameStarted) {
+      <div class="p-6">
+        @if (!players.length) {
+          <h2 class="text-3xl font-semibold font-mono text-white mb-10 -mt-25">Impostor Lobby</h2>
+
+          <form [formGroup]="lobbyForm" class="space-y-4">
+            <div>
+              <input
+                formControlName="roomID"
+                type="text"
+                placeholder="Gib deinen Raum-Code ein"
+                class="w-full rounded-lg px-4 py-3 bg-[#1c1c1e] border border-1 border-[#28282a] text-white text-md font-mono placeholder-gray-400 placeholder:text-md placeholder:font-mono focus:outline-none focus:ring-1 focus:ring-[#28282a]"
+              />
+            </div>
+
+            <!-- Player Name -->
+            <div>
+              <input
+                formControlName="playerName"
+                type="text"
+                placeholder="Gib deinen Namen hier ein"
+                class="w-full rounded-lg px-4 py-3 bg-[#1c1c1e] border border-1 border-[#28282a] text-white text-md font-mono placeholder-gray-400 placeholder:text-md placeholder:font-mono focus:outline-none focus:ring-1 focus:ring-[#28282a]"
+              />
+            </div>
+
+            <div class="flex justify-between gap-2 mt-6">
+              <button type="button"
+                (click)="createRoom()"
+                [disabled]="!lobbyForm.get('playerName')?.value"
+                [ngClass]="lobbyForm.get('playerName')?.value && !lobbyForm.get('roomID')?.value ? 'bg-white/80 text-black' : 'bg-[#1c1c1e] text-white'"
+                class="cursor-pointer flex-1 rounded-lg px-4 py-3 bg-[#1c1c1e] border border-[#28282a] font-bold text-md font-mono disabled:cursor-not-allowed"
+              >
+                Create
+              </button>
+
+              <button
+                type="button"
+                (click)="joinRoom()"
+                [disabled]="!lobbyForm.valid"
+                [ngClass]="lobbyForm.valid ? 'bg-white/80 text-black' : 'bg-[#1c1c1e] text-white'"
+                class="flex-1 rounded-lg px-4 py-3 bg-[#1c1c1e] border border-[#28282a] font-bold text-md font-mono disabled:cursor-not-allowed"
+              >
+                Join
+              </button>
+            </div>
+          </form>
+      } @else {
+          <h2 class="text-3xl font-semibold font-mono text-white mb-10 -mt-25">Spieler in der Lobby</h2>
+          <ul class="text-gray-300 space-y-1">
+            @for (player of players; track $index) {
+              <li class="w-full rounded-lg px-4 py-3 bg-[#1c1c1e] border border-1 border-[#28282a] text-white text-md font-mono">{{ player }}</li>
+            }
+          </ul>
+          <button
+            (click)="startGame()"
+            class="mt-10 w-full rounded-lg px-4 py-3 bg-white border border-[#28282a] font-bold text-md text-black font-mono"
+          >
+            Start Game
+          </button>
+      }
+      </div>
+    } @else {
+      <h2 class="text-3xl font-semibold font-mono text-white mb-10 -mt-25">Das Spiel wurde gestartet</h2>
+      <h3 class="text-2xl font-semibold font-mono text-white mb-5">Deine Rolle: {{ displayWord === '???' ? 'Crewmate' : 'Impostor' }}</h3>
+      <h3 class="text-2xl font-semibold font-mono text-white">Dein {{ displayWord === '???' ? 'Wort' : 'Hinweis' }}: </h3>
+
+      <button class="flex-1 rounded-lg px-4 py-3 bg-[#1c1c1e] border border-[#28282a] text-gray-300 font-bold text-md font-mono">Spiel beenden</button>
+    }
+  </div>
+</section>
