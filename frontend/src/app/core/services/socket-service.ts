@@ -12,8 +12,8 @@ export class SocketService {
     this.socket = io('http://localhost:3000');
   }
 
-  createRoom(roomId: string, word: string) {
-    this.socket.emit('createRoom', { roomId, word });
+  createRoom(playerName: string) {
+    this.socket.emit('createRoom', playerName);
   }
 
   joinRoom(roomId: string, player: string) {
@@ -22,6 +22,10 @@ export class SocketService {
 
   startGame(roomId: string) {
     this.socket.emit('startGame', roomId);
+  }
+
+  stopGame(roomId: string) {
+    this.socket.emit('stopGame', roomId);
   }
 
   onEvent(event: string): Observable<any> {

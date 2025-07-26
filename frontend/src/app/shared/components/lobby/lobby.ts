@@ -13,8 +13,9 @@ import {NgClass} from '@angular/common';
 export class Lobby {
   lobbyForm: FormGroup;
   players: string[] = [];
+  currentRoomId: string = '';
   gameStarted = false;
-  displayWord = '';
+  displayWord: any;
 
   constructor(private fb: FormBuilder, private socketService: SocketService) {
     this.lobbyForm = this.fb.group({
@@ -22,32 +23,48 @@ export class Lobby {
       playerName: ['', Validators.required],
     });
 
-    this.socketService.onEvent('playerList').subscribe((data: string[]) => {
-      this.players = data;
+    this.socketService.onEvent('roomCreated').subscribe((data: any) => {
+      this.currentRoomId = data.roomId;
+      this.players = data.players;
+      this.displayWord = data.word;
+      this.lobbyForm.patchValue({ roomID: data.roomId });
+    });
+
+    this.socketService.onEvent('roomUpdate').subscribe((data: any) => {
+      this.players = data.players;
     });
 
     this.socketService.onEvent('gameStarted').subscribe((data: any) => {
       this.gameStarted = true;
       const currentPlayer = this.lobbyForm.get('playerName')?.value;
-      this.displayWord = currentPlayer === data.impostor ? '???' : data.word;
+      this.displayWord = currentPlayer === data.impostor ? data.hint : data.word;
+    });
+
+    this.socketService.onEvent('gameStopped').subscribe(() => {
+      this.gameStarted = false;
+      this.displayWord = '';
     });
   }
 
   createRoom() {
-    const { roomID, word } = this.lobbyForm.value;
-
-    this.socketService.createRoom(roomID, word);
-
-    this.socketService.joinRoom(roomID, this.lobbyForm.get('playerName')?.value);
+    const { playerName } = this.lobbyForm.value;
+    this.socketService.createRoom(playerName);
   }
 
   joinRoom() {
     const { roomID, playerName } = this.lobbyForm.value;
+    this.currentRoomId = roomID;
     this.socketService.joinRoom(roomID, playerName);
   }
 
   startGame() {
-    const roomID = this.lobbyForm.get('roomID')?.value;
+    const roomID = this.currentRoomId;
     this.socketService.startGame(roomID);
+  }
+
+  stopGame() {
+    const roomID = this.currentRoomId;
+    this.socketService.stopGame(roomID);
+    this.gameStarted = false;
   }
 }

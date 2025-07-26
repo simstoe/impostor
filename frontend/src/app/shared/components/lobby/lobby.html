@@ -20,7 +20,7 @@
                 formControlName="roomID"
                 type="text"
                 placeholder="Gib deinen Raum-Code ein"
-                class="w-full rounded-lg px-4 py-3 bg-[#1c1c1e] border border-1 border-[#28282a] text-white text-md font-mono placeholder-gray-400 placeholder:text-md placeholder:font-mono focus:outline-none focus:ring-1 focus:ring-[#28282a]"
+                class="w-full rounded-lg px-4 py-3 bg-[#1c1c1e] border border-[#28282a] text-white text-md font-mono placeholder-gray-400 placeholder:text-md placeholder:font-mono focus:outline-none focus:ring-1 focus:ring-[#28282a]"
               />
             </div>
 
@@ -30,7 +30,7 @@
                 formControlName="playerName"
                 type="text"
                 placeholder="Gib deinen Namen hier ein"
-                class="w-full rounded-lg px-4 py-3 bg-[#1c1c1e] border border-1 border-[#28282a] text-white text-md font-mono placeholder-gray-400 placeholder:text-md placeholder:font-mono focus:outline-none focus:ring-1 focus:ring-[#28282a]"
+                class="w-full rounded-lg px-4 py-3 bg-[#1c1c1e] border border-[#28282a] text-white text-md font-mono placeholder-gray-400 placeholder:text-md placeholder:font-mono focus:outline-none focus:ring-1 focus:ring-[#28282a]"
               />
             </div>
 
@@ -56,26 +56,37 @@
             </div>
           </form>
       } @else {
-          <h2 class="text-3xl font-semibold font-mono text-white mb-10 -mt-25">Spieler in der Lobby</h2>
+          <h2 class="text-3xl font-semibold font-mono text-white mb-5 -mt-25">Spieler in der Lobby</h2>
+          <h2 class="text-3xl font-semibold font-mono text-white mb-10">Raum: {{ currentRoomId }}</h2>
           <ul class="text-gray-300 space-y-1">
             @for (player of players; track $index) {
-              <li class="w-full rounded-lg px-4 py-3 bg-[#1c1c1e] border border-1 border-[#28282a] text-white text-md font-mono">{{ player }}</li>
+              <li class="w-full rounded-lg px-4 py-3 bg-[#1c1c1e] border border-[#28282a] text-white text-md font-mono">{{ player }}</li>
             }
           </ul>
-          <button
-            (click)="startGame()"
-            class="mt-10 w-full rounded-lg px-4 py-3 bg-white border border-[#28282a] font-bold text-md text-black font-mono"
-          >
-            Start Game
-          </button>
+
+          <div class="flex justify-between gap-2 mt-6">
+            <button
+              (click)="startGame()"
+              class="flex-1 w-full rounded-lg px-4 py-3 bg-white border border-[#28282a] font-bold text-md text-black font-mono disabled:cursor-not-allowed"
+            >
+              Spiel starten
+            </button>
+
+            <button
+              (click)="startGame()"
+              class="flex-1 w-full rounded-lg px-4 py-3 bg-white border border-[#28282a] font-bold text-md text-black font-mono disabled:cursor-not-allowed"
+            >
+              Spiel verlassen
+            </button>
+          </div>
       }
       </div>
     } @else {
       <h2 class="text-3xl font-semibold font-mono text-white mb-10 -mt-25">Das Spiel wurde gestartet</h2>
       <h3 class="text-2xl font-semibold font-mono text-white mb-5">Deine Rolle: {{ displayWord === '???' ? 'Crewmate' : 'Impostor' }}</h3>
-      <h3 class="text-2xl font-semibold font-mono text-white">Dein {{ displayWord === '???' ? 'Wort' : 'Hinweis' }}: </h3>
+      <h3 class="text-2xl font-semibold font-mono text-white">Dein {{ displayWord === '???' ? 'Wort' : 'Hinweis' }}: {{ displayWord }}</h3>
 
-      <button class="flex-1 rounded-lg px-4 py-3 bg-[#1c1c1e] border border-[#28282a] text-gray-300 font-bold text-md font-mono">Spiel beenden</button>
+      <button (click)="stopGame()" class="mt-4 flex-1 rounded-lg px-4 py-3 bg-[#1c1c1e] border border-[#28282a] text-gray-300 font-bold text-md font-mono">Spiel beenden</button>
     }
   </div>
 </section>
