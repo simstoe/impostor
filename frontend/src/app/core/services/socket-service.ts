@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import {Observable} from 'rxjs';
+import {Player} from '../interfaces/player';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,15 @@ export class SocketService {
   private socket: Socket;
 
   constructor() {
-    this.socket = io('http://localhost:3000');
+    this.socket = io({
+      path: '/socket.io',
+      transports: ['websocket'],
+      withCredentials: false
+    });
+
+    this.socket.on('connect', () => console.log('Socket connected'));
+    this.socket.on('disconnect', () => console.log('Socket disconnected'));
+    this.socket.on('connect_error', (err) => console.error('Connection error', err));
   }
 
   createRoom(playerName: string) {
@@ -26,6 +35,11 @@ export class SocketService {
 
   stopGame(roomId: string) {
     this.socket.emit('stopGame', roomId);
+  }
+
+  leaveRoom(roomId: string, player: string) {
+    console.log("Leaving room:", roomId, "for player:", player);
+    this.socket.emit('leaveRoom', { roomId, player });
   }
 
   onEvent(event: string): Observable<any> {
