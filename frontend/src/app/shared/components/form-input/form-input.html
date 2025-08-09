@@ -1,0 +1,34 @@
+<div class="flex flex-col items-start gap-2 w-full my-4">
+  <label class="text-sm text-gray-600 text-foreground font-medium">
+    {{ label }}
+  </label>
+
+  <div class="relative w-full">
+    <input
+      type="text"
+      [formControl]="control"
+      class="text-sm text-gray-600 placeholder:text-gray-500 w-full rounded-md border border-gray-400 px-3 py-2 pr-10
+             focus:ring-0 text-foreground placeholder:text-muted-foreground
+             transition-colors duration-200 shadow-sm
+             focus:outline-none border-input"
+      [ngClass]="{
+        'bg-transparent': !showError,
+        'border-red-500 bg-red-500/20 text-red-500': showError
+      }"
+      [placeholder]="placeholder"
+    />
+
+    @if (control.value) {
+      @if (!showError) {
+        <i class="pi pi-check text-green-500 text-lg absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+      } @else {
+        <i class="pi pi-exclamation-triangle text-red-500 text-lg absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+      }
+    } @else {
+    }
+  </div>
+
+  @if (showError) {
+    <p class="errorMessage text-sm text-red-500">{{ errorMessage }}</p>
+  }
+</div>

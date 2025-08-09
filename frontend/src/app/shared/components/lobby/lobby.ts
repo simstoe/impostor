@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { SocketService } from '../../../core/services/socket-service';
-import {NgClass} from '@angular/common';
 import {Player} from '../../../core/interfaces/player';
+import {FormInput} from '../form-input/form-input';
+import {Button} from '../button/button';
 
 @Component({
   selector: 'app-lobby',
   standalone: true,
-  imports: [ReactiveFormsModule, NgClass],
+  imports: [ReactiveFormsModule, FormInput, Button],
   templateUrl: './lobby.html',
   styleUrls: ['./lobby.css']
 })
@@ -21,8 +22,8 @@ export class Lobby {
 
   constructor(private fb: FormBuilder, private socketService: SocketService) {
     this.lobbyForm = this.fb.group({
-      roomID: ['', Validators.required],
-      playerName: ['', Validators.required],
+      roomID: ['', [Validators.minLength(6)]],
+      playerName: ['', [Validators.required]],
     });
 
     this.socketService.onEvent('roomCreated').subscribe((data: any) => {
@@ -70,6 +71,32 @@ export class Lobby {
     });
   }
 
+  submitted = false;
+
+  submit() {
+    this.submitted = true;
+
+    const roomID = this.lobbyForm.get('roomID')?.value;
+    const playerName = this.lobbyForm.get('playerName')?.value;
+
+    if (playerName && playerName.trim() !== '' && roomID && roomID.trim() !== '') {
+      this.joinRoom();
+    } else if (playerName && playerName.trim() !== '') {
+      this.createRoom();
+    } else {
+      this.lobbyForm.get('playerName')?.setErrors({ required: true });
+    }
+  }
+
+
+  get playerNameControl(): FormControl {
+    return this.lobbyForm.get('playerName') as FormControl;
+  }
+
+  get roomIdControl(): FormControl {
+    return this.lobbyForm.get('roomID') as FormControl;
+  }
+
   createRoom() {
     const { playerName } = this.lobbyForm.value;
     console.log("Creating room with player name:", playerName);
@@ -80,6 +107,7 @@ export class Lobby {
   joinRoom() {
     const { roomID, playerName } = this.lobbyForm.value;
     this.currentRoomId = roomID;
+
     this.socketService.joinRoom(roomID, playerName);
   }
 
@@ -110,7 +138,22 @@ export class Lobby {
     this.lobbyForm.reset();
   }
 
-  debug() {
-    console.log(this.players)
+  kickPlayer(playerName: string) {
+    //TODO
+  }
+
+
+  copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      console.log('Room ID copied to clipboard:', text);
+    }).catch(err => {
+      console.error('Failed to copy room ID:', err);
+    });
+  }
+
+  isHost(): boolean {
+    const currentPlayer = this.lobbyForm.get('playerName')?.value;
+
+    return this.players.length > 0 && this.players[0].playerName === currentPlayer;
   }
 }
