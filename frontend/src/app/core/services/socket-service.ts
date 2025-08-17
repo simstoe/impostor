@@ -59,6 +59,11 @@ export class SocketService {
     console.log("Kicking player:", player);
   }
 
+  endGame(roomId: string) {
+    console.log("Ending game in room:", roomId);
+    this.socket.emit('endGame', roomId);
+  }
+
   onEvent(event: string): Observable<any> {
     return new Observable((observer) => {
       this.socket.on(event, (data) => observer.next(data));

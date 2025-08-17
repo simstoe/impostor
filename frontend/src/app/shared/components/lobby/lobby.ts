@@ -19,6 +19,8 @@ export class Lobby {
   currentRoomId: string = '';
   gameStarted = false;
   displayWord: any;
+  gameOver = false;
+  impostor: Player | null = null;
 
   constructor(private fb: FormBuilder, private socketService: SocketService) {
     this.lobbyForm = this.fb.group({
@@ -36,6 +38,7 @@ export class Lobby {
 
     this.socketService.onEvent('roomUpdate').subscribe((data: any) => {
       this.players = data.players;
+      this.gameOver = false;
     });
 
     this.socketService.onEvent('gameStarted').subscribe((data: any) => {
@@ -46,6 +49,7 @@ export class Lobby {
       const currentPlayer = this.lobbyForm.get('playerName')?.value;
 
       if (currentPlayer === data.impostor.playerName) {
+        this.impostor = data.impostor;
         this.role = 'Impostor';
         this.displayWord = data.hint;
       } else {
@@ -69,6 +73,11 @@ export class Lobby {
       this.lobbyForm.reset();
       this.lobbyForm.patchValue({ roomID: data.roomId });
     });
+
+    this.socketService.onEvent('gameOver').subscribe((data: any) => {
+      this.gameOver = true;
+      this.impostor = data.impostor;
+    });
   }
 
   submitted = false;
@@ -87,7 +96,6 @@ export class Lobby {
       this.lobbyForm.get('playerName')?.setErrors({ required: true });
     }
   }
-
 
   get playerNameControl(): FormControl {
     return this.lobbyForm.get('playerName') as FormControl;
@@ -120,6 +128,7 @@ export class Lobby {
     const roomID = this.currentRoomId;
     this.socketService.stopGame(roomID);
     this.gameStarted = false;
+    this.gameOver = false;
   }
 
   leaveRoom() {
@@ -142,7 +151,6 @@ export class Lobby {
     //TODO
   }
 
-
   copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(() => {
       console.log('Room ID copied to clipboard:', text);
@@ -155,5 +163,10 @@ export class Lobby {
     const currentPlayer = this.lobbyForm.get('playerName')?.value;
 
     return this.players.length > 0 && this.players[0].playerName === currentPlayer;
+  }
+
+  endGame() {
+    this.gameOver = true;
+    this.socketService.endGame(this.currentRoomId);
   }
 }
